@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image, ImageTk
 
 # Function to generate a random maze
-def generate_maze(size=20):
+def generate_maze(size=21):
     maze = np.ones((size, size), dtype=int)
 
     def carve_passages(cx, cy):
@@ -42,8 +42,9 @@ class EvolutionarySolver:
         return population
 
     def generate_random_path(self):
-        moves = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        moves = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # Right, Down, Left, Up
         path = []
+        # Start with a random path length, but ensure it's a valid one
         for _ in range(random.randint(10, 100)):
             path.append(random.choice(moves))
         return path
@@ -53,8 +54,10 @@ class EvolutionarySolver:
         for move in path:
             x += move[0]
             y += move[1]
+            # If out of bounds or hits a wall, return a high fitness value
             if x < 0 or x >= len(self.maze) or y < 0 or y >= len(self.maze[0]) or self.maze[x, y] == 1:
                 return float('inf')
+        # Return the Manhattan distance to the end
         return abs(x - self.end[0]) + abs(y - self.end[1])
 
     def select_parents(self):
@@ -75,6 +78,7 @@ class EvolutionarySolver:
         return path
 
     def evolve(self):
+        best_solution = None
         for _ in range(self.generations):
             new_population = []
             for _ in range(self.population_size // 2):
@@ -86,7 +90,10 @@ class EvolutionarySolver:
             self.population = new_population
             best_path = min(self.population, key=self.fitness)
             if self.fitness(best_path) == 0:
-                return best_path
+                best_solution = best_path
+                break
+        if best_solution:
+            return best_solution
         return min(self.population, key=self.fitness)
 
 # Main GUI Class
